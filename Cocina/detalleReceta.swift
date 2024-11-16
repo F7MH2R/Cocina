@@ -1,0 +1,296 @@
+import SwiftUI
+
+// Modelo principal del detalle de la receta
+struct RecetaDetalle: Decodable {
+    let id_receta: Int
+    let id_usuario: Int
+    let descripcion: String
+    let porciones: Int
+    let tiempo: Int
+    let video: String
+    let fecha: String
+    let Ingredientes: [Ingrediente]
+    let Usuarios: Usuario
+    let Pasos: [Paso]
+    let Imagenes: [Imagen]
+    let TiposRecetas: [TipoReceta]
+    let Comentarios: [Comentario]
+    let _count: ReportCount
+    let isFavorito: Bool
+    let userResena: Int
+    let vistas: Int
+    let denunciado: Bool
+
+    struct Ingrediente: Decodable {
+        let id_ingrediente: Int
+        let id_receta: Int
+        let ingrediente: String
+    }
+
+    struct Usuario: Decodable {
+        let nombre: String
+    }
+
+    struct Paso: Decodable {
+        let id_paso: Int
+        let id_receta: Int
+        let paso: String
+        let orden: Int
+    }
+
+    struct Imagen: Decodable {
+        let url_imagen: String
+    }
+
+    struct TipoReceta: Decodable {
+        let id_receta: Int
+        let id_tipo: Int
+        let Tipos: Tipo
+
+        struct Tipo: Decodable {
+            let id_tipo: Int
+            let nombre: String
+        }
+    }
+
+    struct Comentario: Decodable {
+        // Ajusta los campos según los datos futuros de "Comentarios"
+    }
+
+    struct ReportCount: Decodable {
+        let Reportes: Int
+    }
+}
+
+struct RecetaDetalleView: View {
+    let recetaId: Int
+    @State private var recetaDetalle: RecetaDetalle?
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+
+    var body: some View {
+        ZStack {
+            Color(red: 224/255, green: 255/255, blue: 224/255)
+                .edgesIgnoringSafeArea(.all)
+
+            if isLoading {
+                ProgressView("Cargando detalles...")
+            } else if let errorMessage = errorMessage {
+                ErrorView(message: errorMessage)
+            } else if let detalle = recetaDetalle {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        RecetaImageView(imagenes: detalle.Imagenes)
+                        RecetaHeaderView(detalle: detalle)
+                        IngredientesView(ingredientes: detalle.Ingredientes)
+                        PasosView(pasos: detalle.Pasos)
+                        CategoriasView(categorias: detalle.TiposRecetas)
+                        ComentariosView(comentarios: detalle.Comentarios)
+                    }
+                    .padding()
+                }
+            }
+        }
+        .onAppear {
+            fetchRecetaDetalle()
+        }
+        .navigationTitle("Detalle de Receta")
+    }
+
+    func fetchRecetaDetalle() {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/1/\(recetaId)") else {
+            errorMessage = "URL inválida"
+            isLoading = false
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    errorMessage = "Error: \(error.localizedDescription)"
+                    isLoading = false
+                }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    errorMessage = "Datos vacíos desde la API"
+                    isLoading = false
+                }
+                return
+            }
+
+            do {
+                let decodedData = try JSONDecoder().decode(RecetaDetalle.self, from: data)
+                DispatchQueue.main.async {
+                    recetaDetalle = decodedData
+                    isLoading = false
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    errorMessage = "Error al decodificar datos: \(error.localizedDescription)"
+                    isLoading = false
+                }
+            }
+        }.resume()
+    }
+}
+
+// Subvistas para organizar el diseño
+
+struct RecetaImageView: View {
+    let imagenes: [RecetaDetalle.Imagen]
+
+    var body: some View {
+        if let primeraImagen = imagenes.first?.url_imagen,
+           let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(primeraImagen)") {
+            AsyncImage(url: imageUrl) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(height: 200)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 200)
+                        .cornerRadius(10)
+                case .failure:
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                        .foregroundColor(.gray)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+        } else {
+            Image(systemName: "photo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 200)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+struct RecetaHeaderView: View {
+    let detalle: RecetaDetalle
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(detalle.descripcion)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.green)
+
+            Text("Por \(detalle.Usuarios.nombre)")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+
+            Text("\(detalle.porciones) porciones | \(detalle.tiempo) minutos")
+                .font(.subheadline)
+
+            Text("Vistas: \(detalle.vistas)")
+                .font(.subheadline)
+
+            if detalle.isFavorito {
+                Text("Favorito")
+                    .font(.subheadline)
+                    .foregroundColor(.red)
+            }
+        }
+    }
+}
+
+struct IngredientesView: View {
+    let ingredientes: [RecetaDetalle.Ingrediente]
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Ingredientes")
+                .font(.headline)
+                .padding(.top)
+
+            ForEach(ingredientes, id: \.id_ingrediente) { ingrediente in
+                Text("- \(ingrediente.ingrediente)")
+                    .font(.body)
+            }
+        }
+    }
+}
+
+struct PasosView: View {
+    let pasos: [RecetaDetalle.Paso]
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Instrucciones")
+                .font(.headline)
+                .padding(.top)
+
+            ForEach(pasos, id: \.orden) { paso in
+                Text("\(paso.orden). \(paso.paso)")
+                    .font(.body)
+            }
+        }
+    }
+}
+
+struct CategoriasView: View {
+    let categorias: [RecetaDetalle.TipoReceta]
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Categorías")
+                .font(.headline)
+                .padding(.top)
+
+            ForEach(categorias, id: \.id_tipo) { tipoReceta in
+                Text("- \(tipoReceta.Tipos.nombre)")
+                    .font(.body)
+            }
+        }
+    }
+}
+
+struct ComentariosView: View {
+    let comentarios: [RecetaDetalle.Comentario]
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            if comentarios.isEmpty {
+                Text("Sin comentarios disponibles.")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            } else {
+                // Placeholder para comentarios futuros
+                Text("Comentarios:")
+                    .font(.headline)
+            }
+        }
+    }
+}
+
+struct ErrorView: View {
+    let message: String
+
+    var body: some View {
+        Text(message)
+            .foregroundColor(.red)
+            .multilineTextAlignment(.center)
+            .padding()
+    }
+}
+
+struct RecetaDetalleView_Previews: PreviewProvider {
+    static var previews: some View {
+        RecetaDetalleView(recetaId: 1)
+    }
+}

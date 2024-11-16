@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A11CBA5F2CE8DD5500CF7DB7 /* agregarReceta.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA5E2CE8DD5500CF7DB7 /* agregarReceta.swift */; };
+		A11CBA612CE8DDB500CF7DB7 /* agregarIngredientes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA602CE8DDB500CF7DB7 /* agregarIngredientes.swift */; };
+		A11CBA632CE8E1A200CF7DB7 /* detalleReceta.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA622CE8E1A200CF7DB7 /* detalleReceta.swift */; };
 		A1966D712CE8471000BFA083 /* Registrarse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1966D702CE8471000BFA083 /* Registrarse.swift */; };
-		A1966D732CE8491D00BFA083 /* lostpassword.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1966D722CE8491D00BFA083 /* lostpassword.swift */; };
 		A1966D752CE84DC100BFA083 /* inicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1966D742CE84DC100BFA083 /* inicio.swift */; };
 		FB41AF592CDF9E620031C643 /* CocinaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB41AF582CDF9E620031C643 /* CocinaApp.swift */; };
 		FB41AF5B2CDF9E620031C643 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB41AF5A2CDF9E620031C643 /* ContentView.swift */; };
@@ -17,9 +19,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A11CBA5E2CE8DD5500CF7DB7 /* agregarReceta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = agregarReceta.swift; sourceTree = "<group>"; };
+		A11CBA602CE8DDB500CF7DB7 /* agregarIngredientes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = agregarIngredientes.swift; sourceTree = "<group>"; };
+		A11CBA622CE8E1A200CF7DB7 /* detalleReceta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = detalleReceta.swift; sourceTree = "<group>"; };
 		A174EFB92CE855AD0027FFDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A1966D702CE8471000BFA083 /* Registrarse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Registrarse.swift; sourceTree = "<group>"; };
-		A1966D722CE8491D00BFA083 /* lostpassword.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lostpassword.swift; sourceTree = "<group>"; };
 		A1966D742CE84DC100BFA083 /* inicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = inicio.swift; sourceTree = "<group>"; };
 		FB41AF552CDF9E620031C643 /* Cocina.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cocina.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB41AF582CDF9E620031C643 /* CocinaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocinaApp.swift; sourceTree = "<group>"; };
@@ -66,8 +70,10 @@
 				FB41AF5E2CDF9E640031C643 /* Cocina.entitlements */,
 				FB41AF5F2CDF9E640031C643 /* Preview Content */,
 				A1966D702CE8471000BFA083 /* Registrarse.swift */,
-				A1966D722CE8491D00BFA083 /* lostpassword.swift */,
 				A1966D742CE84DC100BFA083 /* inicio.swift */,
+				A11CBA5E2CE8DD5500CF7DB7 /* agregarReceta.swift */,
+				A11CBA602CE8DDB500CF7DB7 /* agregarIngredientes.swift */,
+				A11CBA622CE8E1A200CF7DB7 /* detalleReceta.swift */,
 			);
 			path = Cocina;
 			sourceTree = "<group>";
@@ -151,9 +157,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1966D712CE8471000BFA083 /* Registrarse.swift in Sources */,
+				A11CBA5F2CE8DD5500CF7DB7 /* agregarReceta.swift in Sources */,
 				A1966D752CE84DC100BFA083 /* inicio.swift in Sources */,
 				FB41AF5B2CDF9E620031C643 /* ContentView.swift in Sources */,
-				A1966D732CE8491D00BFA083 /* lostpassword.swift in Sources */,
+				A11CBA612CE8DDB500CF7DB7 /* agregarIngredientes.swift in Sources */,
+				A11CBA632CE8E1A200CF7DB7 /* detalleReceta.swift in Sources */,
 				FB41AF592CDF9E620031C643 /* CocinaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
