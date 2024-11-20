@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct RecetasView: View {
+    let datosUsuario: DatosJson // Modelo para recibir los datos del usuario
+
     @State private var recetas: [Receta] = []
     @State private var isLoading: Bool = true
     @State private var todo: String = " "
@@ -19,7 +21,7 @@ struct RecetasView: View {
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
-                        Text("Dani Martinez")
+                        Text(datosUsuario.nombre) // Mostrar el nombre del usuario dinámicamente
                             .font(.headline)
                             .foregroundColor(.white)
                     }
@@ -276,6 +278,11 @@ struct TabButton: View {
 
 struct RecetasView_Previews: PreviewProvider {
     static var previews: some View {
-        RecetasView()
+        RecetasView(datosUsuario: DatosJson(
+            id_usuario: 1,
+            correo: "usuario@example.com",
+            nombre: "Dani Martinez",
+            usuario: "dani123"
+        ))
     }
 }
