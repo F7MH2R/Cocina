@@ -64,39 +64,177 @@ struct RecetaDetalle: Decodable {
 
 struct RecetaDetalleView: View {
     let recetaId: Int
-    @State private var recetaDetalle: RecetaDetalle?
-    @State private var isLoading = true
-    @State private var errorMessage: String?
+    let datos: DatosJson
+        @State private var recetaDetalle: RecetaDetalle?
+        @State private var isLoading = true
+        @State private var errorMessage: String?
+        @State private var isFavorito = false // Estado para el botón de favoritos
+        @State private var resenaValor: Int = 0 // Estado para la calificación
+        @State private var showToast = false // Estado para mostrar el toast
+        @State private var toastMessage = "" // Mensaje del toast
 
-    var body: some View {
-        ZStack {
-            Color(red: 224/255, green: 255/255, blue: 224/255)
-                .edgesIgnoringSafeArea(.all)
+        var body: some View {
+            ZStack {
+                Color(red: 224/255, green: 255/255, blue: 224/255)
+                    .edgesIgnoringSafeArea(.all)
 
-            if isLoading {
-                ProgressView("Cargando detalles...")
-            } else if let errorMessage = errorMessage {
-                ErrorView(message: errorMessage)
-            } else if let detalle = recetaDetalle {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 15) {
-                        RecetaImageView(imagenes: detalle.Imagenes)
-                        RecetaHeaderView(detalle: detalle)
-                        IngredientesView(ingredientes: detalle.Ingredientes)
-                        PasosView(pasos: detalle.Pasos)
-                        CategoriasView(categorias: detalle.TiposRecetas)
-                        ComentariosView(comentarios: detalle.Comentarios)
+                if isLoading {
+                    ProgressView("Cargando detalles...")
+                } else if let errorMessage = errorMessage {
+                    ErrorView(message: errorMessage)
+                } else if let detalle = recetaDetalle {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            RecetaImageView(imagenes: detalle.Imagenes)
+                            RecetaHeaderView(detalle: detalle)
+
+                            // Botones de acción
+                            HStack {
+                                Button(action: {
+                                    anadirAFavoritos()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "bookmark.fill")
+                                        Text(isFavorito ? "Favorito" : "Guardar")
+                                    }
+                                    .padding()
+                                    .background(isFavorito ? Color.yellow : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                }
+
+                                Button(action: {
+                                    anadirAListaDeCompras()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "cart.fill")
+                                        Text("Añadir a lista")
+                                    }
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                }
+                            }
+
+                            // Reseñas de calificación
+                            VStack(alignment: .leading) {
+                                Text("Calificación")
+                                    .font(.headline)
+                                    .padding(.top)
+
+                                HStack {
+                                    ForEach(1...5, id: \.self) { star in
+                                        Image(systemName: star <= resenaValor ? "star.fill" : "star")
+                                            .foregroundColor(.yellow)
+                                            .onTapGesture {
+                                                enviarResena(valor: star)
+                                            }
+                                    }
+                                }
+                            }
+
+                            IngredientesView(ingredientes: detalle.Ingredientes)
+                            PasosView(pasos: detalle.Pasos)
+                            CategoriasView(categorias: detalle.TiposRecetas)
+                        }
+                        .padding()
                     }
-                    .padding()
+                }
+
+                // Toast para confirmar acciones
+                if showToast {
+                    VStack {
+                        Spacer()
+                        Text(toastMessage)
+                            .padding()
+                            .background(Color.black.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.bottom, 20)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    self.showToast = false
+                                }
+                            }
+                    }
                 }
             }
+            .onAppear {
+                fetchRecetaDetalle()
+            }
+            .navigationTitle("Detalle de Receta")
         }
-        .onAppear {
-            fetchRecetaDetalle()
-        }
-        .navigationTitle("Detalle de Receta")
-    }
+    // Función para añadir a favoritos
+        func anadirAFavoritos() {
+            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/addfav") else {
+                errorMessage = "URL inválida"
+                return
+            }
 
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let body: [String: Any] = ["idUsuario": datos.id_usuario, "idReceta": recetaId]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if error == nil, let response = response as? HTTPURLResponse, response.statusCode != 500 {
+                    DispatchQueue.main.async {
+                        isFavorito.toggle()
+                        toastMessage = isFavorito ? "Añadido a favoritos" : "Eliminado de favoritos"
+                        showToast = true
+                    }
+                }
+            }.resume()
+        }
+
+        // Función para añadir a la lista de compras
+        func anadirAListaDeCompras() {
+            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/anadirlista") else {
+                errorMessage = "URL inválida"
+                return
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let body: [String: Any] = ["id_usuario": datos.id_usuario, "id_receta": recetaId]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if error == nil, let response = response as? HTTPURLResponse, response.statusCode == 200 {
+                    DispatchQueue.main.async {
+                        toastMessage = "Añadido a lista de compras"
+                        showToast = true
+                    }
+                }
+            }.resume()
+        }
+
+        // Función para enviar reseñas
+        func enviarResena(valor: Int) {
+            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/resena") else {
+                errorMessage = "URL inválida"
+                return
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let body: [String: Any] = ["id_usuario": datos.id_usuario, "id_receta": recetaId, "valor": valor]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if error == nil, let response = response as? HTTPURLResponse, response.statusCode == 200 {
+                    DispatchQueue.main.async {
+                        resenaValor = valor
+                        toastMessage = "Reseña enviada: \(valor) estrella(s)"
+                        showToast = true
+                    }
+                }
+            }.resume()
+        }
     func fetchRecetaDetalle() {
         guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/1/\(recetaId)") else {
             errorMessage = "URL inválida"
@@ -130,6 +268,8 @@ struct RecetaDetalleView: View {
                 DispatchQueue.main.async {
                     recetaDetalle = decodedData
                     isLoading = false
+                    isFavorito = recetaDetalle?.isFavorito ?? false
+                    resenaValor = recetaDetalle?.userResena ?? 0
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -200,11 +340,6 @@ struct RecetaHeaderView: View {
             Text("Vistas: \(detalle.vistas)")
                 .font(.subheadline)
 
-            if detalle.isFavorito {
-                Text("Favorito")
-                    .font(.subheadline)
-                    .foregroundColor(.red)
-            }
         }
     }
 }
@@ -260,24 +395,6 @@ struct CategoriasView: View {
     }
 }
 
-struct ComentariosView: View {
-    let comentarios: [RecetaDetalle.Comentario]
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            if comentarios.isEmpty {
-                Text("Sin comentarios disponibles.")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            } else {
-                // Placeholder para comentarios futuros
-                Text("Comentarios:")
-                    .font(.headline)
-            }
-        }
-    }
-}
-
 struct ErrorView: View {
     let message: String
 
@@ -291,6 +408,11 @@ struct ErrorView: View {
 
 struct RecetaDetalleView_Previews: PreviewProvider {
     static var previews: some View {
-        RecetaDetalleView(recetaId: 1)
+        RecetaDetalleView(recetaId: 1, datos: DatosJson(
+            id_usuario: 1,
+            correo: "usuario@example.com",
+            nombre: "Dani Martinez",
+            usuario: "dani123"
+        ))
     }
 }

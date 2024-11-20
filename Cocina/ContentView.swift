@@ -41,6 +41,7 @@ struct ContentView: View {
                                 .foregroundColor(.black)
                                 .autocapitalization(.none)
                                 .keyboardType(.emailAddress)
+                                
                         }
                         .padding()
                         .background(Color.white)
