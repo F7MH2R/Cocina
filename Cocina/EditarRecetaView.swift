@@ -19,6 +19,9 @@ struct EditarRecetaView: View {
     @State private var nuevoIngrediente: String = ""
     @State private var nuevoPaso: String = ""
 
+    @State private var showToast = false
+    @State private var toastMessage = ""
+
     var body: some View {
         NavigationView {
             VStack {
@@ -59,6 +62,22 @@ struct EditarRecetaView: View {
                                     .scaledToFit()
                                     .frame(height: 200)
                                     .foregroundColor(.gray)
+                            }
+
+                            // Subir nueva imagen
+                            Button(action: {
+                                showImagePicker.toggle()
+                            }) {
+                                Text("Cambiar Imagen")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
+                            }
+                            .sheet(isPresented: $showImagePicker) {
+                                ImagePicker(image: $imagenReceta)
                             }
 
                             // Nombre de la receta
@@ -201,7 +220,7 @@ struct EditarRecetaView: View {
                                     .padding(.vertical)
                             }
 
-                            // Botón para guardar
+                            // Botón para guardar cambios
                             Button(action: {
                                 guardarReceta()
                             }) {
@@ -215,6 +234,23 @@ struct EditarRecetaView: View {
                             }
                         }
                         .padding()
+                    }
+                }
+                // Toast para confirmar acciones
+                if showToast {
+                    VStack {
+                        Spacer()
+                        Text(toastMessage)
+                            .padding()
+                            .background(Color.black.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.bottom, 20)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    self.showToast = false
+                                }
+                            }
                     }
                 }
             }
@@ -263,6 +299,7 @@ struct EditarRecetaView: View {
                     pasos = decodedData.Pasos.sorted(by: { $0.orden < $1.orden }).map { $0.paso }
                     porciones = decodedData.porciones
                     tiempo = decodedData.tiempo
+                    
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -274,7 +311,45 @@ struct EditarRecetaView: View {
     }
 
     func guardarReceta() {
-        // Implementa la lógica para guardar los cambios
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/updatereceta/\(recetaId)") else {
+            errorMessage = "URL inválida"
+            return
+        }
+
+        let recetaData: [String: Any] = [
+            "descripcion": nombreReceta,
+            "porciones": porciones,
+            "tiempo": tiempo,
+            "Ingredientes": ingredientes,
+            "Pasos": pasos.enumerated().map { ["paso": $1, "orden": $0 + 1] },
+            "id_usuario": datos.id_usuario
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: recetaData)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    errorMessage = "Error: \(error.localizedDescription)"
+                }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    errorMessage = "Error en la respuesta del servidor."
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                toastMessage = "Receta actualizada con éxito"
+                showToast = true
+            }
+        }.resume()
     }
 }
 
