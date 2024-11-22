@@ -33,8 +33,14 @@ struct EditarRecetaView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 15) {
                             // Imagen principal
-                            if let primeraImagen = detalle.Imagenes.first?.url_imagen,
-                               let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(primeraImagen)") {
+                            if let imagenReceta = imagenReceta {
+                                Image(uiImage: imagenReceta)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 200)
+                                    .cornerRadius(10)
+                            } else if let primeraImagen = detalle.Imagenes.first?.url_imagen,
+                                      let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(primeraImagen)") {
                                 AsyncImage(url: imageUrl) { phase in
                                     switch phase {
                                     case .empty:
@@ -78,6 +84,11 @@ struct EditarRecetaView: View {
                             }
                             .sheet(isPresented: $showImagePicker) {
                                 ImagePicker(image: $imagenReceta)
+                                    .onDisappear {
+                                        if let nuevaImagen = imagenReceta {
+                                            resubirImagen(imagen: nuevaImagen)
+                                        }
+                                    }
                             }
 
                             // Nombre de la receta
@@ -299,7 +310,6 @@ struct EditarRecetaView: View {
                     pasos = decodedData.Pasos.sorted(by: { $0.orden < $1.orden }).map { $0.paso }
                     porciones = decodedData.porciones
                     tiempo = decodedData.tiempo
-                    
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -351,12 +361,48 @@ struct EditarRecetaView: View {
             }
         }.resume()
     }
+
+    func resubirImagen(imagen: UIImage) {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/resubir/\(recetaId)"),
+              let imageData = imagen.jpegData(compressionQuality: 0.8) else {
+            errorMessage = "Error al preparar la imagen para subir."
+            return
+        }
+
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"imagenes\"; filename=\"receta.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        request.httpBody = body
+
+        URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    errorMessage = "Error al subir imagen: \(error.localizedDescription)"
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                toastMessage = "Imagen actualizada con éxito"
+                showToast = true
+            }
+        }.resume()
+    }
 }
 
 struct EditarRecetaView_Previews: PreviewProvider {
     static var previews: some View {
         EditarRecetaView(recetaId: 9, datos: DatosJson(
-            id_usuario: 1,
+            id_usuario: 14,
             correo: "usuario@example.com",
             nombre: "Dani Martinez",
             usuario: "dani123"
