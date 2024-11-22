@@ -310,7 +310,7 @@ struct CrearRecetaView: View {
             "Pasos": pasos.enumerated().map { ["paso": $1, "orden": $0 + 1] }
         ]
 
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/createreceta") else { return }
+        guard let url = URL(string: "\(Constants.API.baseURL)/createreceta") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -346,7 +346,7 @@ struct CrearRecetaView: View {
         guard let recetaId = recetaId, let imageData = imagenReceta?.jpegData(compressionQuality: 0.8) else { return }
 
         let boundary = UUID().uuidString
-        let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/subir/\(recetaId)")!
+        let url = URL(string: "\(Constants.API.baseURL)/subir/\(recetaId)")!
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

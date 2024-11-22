@@ -167,7 +167,7 @@ struct RecetaDetalleView: View {
         }
     // Función para añadir a favoritos
         func anadirAFavoritos() {
-            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/addfav") else {
+            guard let url = URL(string: "\(Constants.API.baseURL)/addfav") else {
                 errorMessage = "URL inválida"
                 return
             }
@@ -191,7 +191,7 @@ struct RecetaDetalleView: View {
 
         // Función para añadir a la lista de compras
         func anadirAListaDeCompras() {
-            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/anadirlista") else {
+            guard let url = URL(string: "\(Constants.API.baseURL)/anadirlista") else {
                 errorMessage = "URL inválida"
                 return
             }
@@ -214,7 +214,7 @@ struct RecetaDetalleView: View {
 
         // Función para enviar reseñas
         func enviarResena(valor: Int) {
-            guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/resena") else {
+            guard let url = URL(string: "\(Constants.API.baseURL)/resena") else {
                 errorMessage = "URL inválida"
                 return
             }
@@ -236,7 +236,7 @@ struct RecetaDetalleView: View {
             }.resume()
         }
     func fetchRecetaDetalle() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/\(datos.id_usuario)/\(recetaId)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/recetadetalle/\(datos.id_usuario)/\(recetaId)") else {
             errorMessage = "URL inválida"
             isLoading = false
             return
@@ -288,7 +288,7 @@ struct RecetaImageView: View {
 
     var body: some View {
         if let primeraImagen = imagenes.first?.url_imagen,
-           let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(primeraImagen)") {
+           let imageUrl = URL(string: "\(Constants.API.baseURL)/obtenerimg/\(primeraImagen)") {
             AsyncImage(url: imageUrl) { phase in
                 switch phase {
                 case .empty:

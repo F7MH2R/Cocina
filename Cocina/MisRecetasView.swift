@@ -52,7 +52,7 @@ struct MisRecetasView: View {
                                     VStack(alignment: .leading, spacing: 8) {
                                         // Imagen de la receta
                                         if let imagenUrl = receta.imagenesDeLaReceta.first?.enlaceDeLaImagen {
-                                            AsyncImage(url: URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(imagenUrl)")) { image in
+                                            AsyncImage(url: URL(string: "\(Constants.API.baseURL)/obtenerimg/\(imagenUrl)")) { image in
                                                 image
                                                     .resizable()
                                                     .aspectRatio(contentMode: .fill)
@@ -182,7 +182,7 @@ struct MisRecetasView: View {
     
     // Función para consumir la API y obtener las recetas creadas por el usuario
     func fetchRecetasUsuario(userId: Int, nombre: String = "", tags: String = "") {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetauser/\(userId)?nombre=\(nombre)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/recetauser/\(userId)?nombre=\(nombre)") else {
             self.errorMessage = "URL inválida"
             return
         }
@@ -221,7 +221,7 @@ struct MisRecetasView: View {
     
     // Función para eliminar una receta
     func eliminarReceta(recetaId: Int) {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/deletereceta/\(recetaId)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/deletereceta/\(recetaId)") else {
             self.errorMessage = "URL inválida"
             return
         }

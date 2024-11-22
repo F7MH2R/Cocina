@@ -125,7 +125,7 @@ struct ContentView: View {
 
     // Login function to consume API
     func login() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/login") else { return }
+        guard let url = URL(string: "\(Constants.API.baseURL)/login") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

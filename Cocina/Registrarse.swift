@@ -112,7 +112,7 @@ struct CrearCuentaView: View {
         }
 
         // URL de la API
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/createuser") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/createuser") else {
             self.message = "URL no válida."
             return
         }

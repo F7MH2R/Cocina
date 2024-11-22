@@ -40,7 +40,7 @@ struct EditarRecetaView: View {
                                     .frame(height: 200)
                                     .cornerRadius(10)
                             } else if let primeraImagen = detalle.Imagenes.first?.url_imagen,
-                                      let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(primeraImagen)") {
+                                      let imageUrl = URL(string: "\(Constants.API.baseURL)/obtenerimg/\(primeraImagen)") {
                                 AsyncImage(url: imageUrl) { phase in
                                     switch phase {
                                     case .empty:
@@ -273,7 +273,7 @@ struct EditarRecetaView: View {
     }
 
     func fetchRecetaDetalle() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/1/\(recetaId)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/recetadetalle/1/\(recetaId)") else {
             errorMessage = "URL inválida"
             isLoading = false
             return
@@ -321,7 +321,7 @@ struct EditarRecetaView: View {
     }
 
     func guardarReceta() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/updatereceta/\(recetaId)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/updatereceta/\(recetaId)") else {
             errorMessage = "URL inválida"
             return
         }
@@ -363,7 +363,7 @@ struct EditarRecetaView: View {
     }
 
     func resubirImagen(imagen: UIImage) {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/resubir/\(recetaId)"),
+        guard let url = URL(string: "\(Constants.API.baseURL)/resubir/\(recetaId)"),
               let imageData = imagen.jpegData(compressionQuality: 0.8) else {
             errorMessage = "Error al preparar la imagen para subir."
             return

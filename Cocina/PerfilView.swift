@@ -134,7 +134,7 @@ struct PerfilView: View {
     
     // Función para editar el usuario
     func editarUsuario() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/edituser/\(datos.id_usuario)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/edituser/\(datos.id_usuario)") else {
             errorMessage = "URL inválida"
             return
         }
@@ -174,7 +174,7 @@ struct PerfilView: View {
     
     // Función para cambiar la contraseña
     func cambiarContrasena() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/changepass/\(datos.id_usuario)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/changepass/\(datos.id_usuario)") else {
             errorMessage = "URL inválida"
             return
         }

@@ -68,7 +68,7 @@ struct RecetasView: View {
 
     // Función para consumir la API
     func fetchRecetas() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/receta") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/receta") else {
             print("URL inválida")
             return
         }
@@ -129,7 +129,7 @@ struct RecetaCard: View {
         NavigationLink(destination: RecetaDetalleView(recetaId: receta.id, datos: datos)) { // Enviar el id de la receta
             HStack {
                 // Generar la URL del endpoint para cargar la imagen
-                if let imageUrl = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(receta.Imagenes.first?.url_imagen ?? "")") {
+                if let imageUrl = URL(string: "\(Constants.API.baseURL)/obtenerimg/\(receta.Imagenes.first?.url_imagen ?? "")") {
                     AsyncImage(url: imageUrl) { image in
                         image
                             .resizable()

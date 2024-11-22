@@ -96,7 +96,7 @@ struct ListaIngredientesView: View {
 
     // Función para cargar los ingredientes
     func fetchIngredientes() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerlista/\(userId)?nombre=\(searchText)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/obtenerlista/\(userId)?nombre=\(searchText)") else {
             errorMessage = "URL inválida"
             return
         }
@@ -138,7 +138,7 @@ struct ListaIngredientesView: View {
 
     // Función para eliminar un ingrediente
     func eliminarIngrediente(id: Int) {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/eliminaritem/\(id)") else {
+        guard let url = URL(string: "\(Constants.API.baseURL)/eliminaritem/\(id)") else {
             errorMessage = "URL inválida"
             return
         }
