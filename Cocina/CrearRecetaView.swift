@@ -19,11 +19,18 @@ struct CrearRecetaView: View {
     @State private var editingIndex: Int? = nil
     @State private var editingText: String = ""
     @State private var isEditingIngredient: Bool = false
+    @State private var recetaId: Int? = nil
+    @State private var isLoading: Bool = false
+    @State private var errorMessage: String? = nil
 
     var body: some View {
         NavigationView {
             VStack {
-                // Encabezado y nombre de la receta
+                if isLoading {
+                    ProgressView("Cargando...")
+                        .padding()
+                }
+
                 VStack(alignment: .leading) {
                     HStack {
                         Button(action: {
@@ -52,7 +59,7 @@ struct CrearRecetaView: View {
                 .foregroundColor(.white)
 
                 ScrollView {
-                    // Ingredientes
+                    // Lista de Ingredientes
                     VStack(alignment: .leading) {
                         Text("LISTA DE INGREDIENTES")
                             .font(.headline)
@@ -120,7 +127,7 @@ struct CrearRecetaView: View {
 
                     Divider()
 
-                    // Procedimientos
+                    // Lista de Pasos
                     VStack(alignment: .leading) {
                         Text("PASOS A SEGUIR")
                             .font(.headline)
@@ -198,7 +205,7 @@ struct CrearRecetaView: View {
 
                     Divider()
 
-                    // Imagen y datos
+                    // Imagen y otros detalles
                     VStack(alignment: .leading) {
                         Text("Imagen de la receta")
                             .font(.headline)
@@ -244,11 +251,9 @@ struct CrearRecetaView: View {
                     .padding()
                 }
 
-                // Botón Publicar
-                Button(action: {
-                    print("Porciones: \(porciones), Tiempo: \(tiempo)")
-                }) {
-                    Text("Publicar")
+                // Botón para guardar receta
+                Button(action: saveReceta) {
+                    Text("Guardar Receta")
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding()
@@ -257,36 +262,31 @@ struct CrearRecetaView: View {
                         .cornerRadius(10)
                 }
                 .padding()
+
             }
         }
         .sheet(isPresented: $editMode) {
             VStack {
-                Text("Editar")
+                Text(isEditingIngredient ? "Editar Ingrediente" : "Editar Paso")
                     .font(.headline)
-                TextField("Texto", text: $editingText)
+                    .padding()
+
+                TextField("Nuevo texto", text: $editingText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
+
                 HStack {
-                    Button("Guardar", action: {
-                        if let index = editingIndex {
-                            if isEditingIngredient {
-                                ingredientes[index] = editingText
-                            } else {
-                                pasos[index] = editingText
-                            }
-                            editingIndex = nil
-                            editMode = false
-                        }
-                    })
+                    Button("Guardar") {
+                        saveEdit()
+                    }
                     .foregroundColor(.white)
                     .padding()
                     .background(Color.green)
                     .cornerRadius(10)
 
-                    Button("Cancelar", action: {
-                        editingIndex = nil
-                        editMode = false
-                    })
+                    Button("Cancelar") {
+                        cancelEdit()
+                    }
                     .foregroundColor(.white)
                     .padding()
                     .background(Color.red)
@@ -295,6 +295,96 @@ struct CrearRecetaView: View {
             }
             .padding()
         }
+    }
+
+    func saveReceta() {
+        isLoading = true
+
+        let recetaData: [String: Any] = [
+            "descripcion": nombreReceta,
+            "id_usuario": datos.id_usuario,
+            "porciones": porciones,
+            "video": "No URL",
+            "tiempo": tiempo,
+            "Ingredientes": ingredientes,
+            "Pasos": pasos.enumerated().map { ["paso": $1, "orden": $0 + 1] }
+        ]
+
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/createreceta") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: recetaData)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoading = false
+            }
+
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+                return
+            }
+
+            guard let data = data else { return }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: [])
+                if let json = response as? [String: Any], let id = json["id_receta"] as? Int {
+                    DispatchQueue.main.async {
+                        recetaId = id
+                        uploadImage()
+                    }
+                }
+            } catch {
+                print("Error al procesar respuesta: \(error.localizedDescription)")
+            }
+        }.resume()
+    }
+
+    func uploadImage() {
+        guard let recetaId = recetaId, let imageData = imagenReceta?.jpegData(compressionQuality: 0.8) else { return }
+
+        let boundary = UUID().uuidString
+        let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/subir/\(recetaId)")!
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"imagenes\"; filename=\"receta.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        request.httpBody = body
+
+        URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+            if let error = error {
+                print("Error al subir imagen: \(error.localizedDescription)")
+                return
+            }
+
+            print("Imagen subida correctamente.")
+        }.resume()
+    }
+
+    func saveEdit() {
+        guard let index = editingIndex else { return }
+        if isEditingIngredient {
+            ingredientes[index] = editingText
+        } else {
+            pasos[index] = editingText
+        }
+        cancelEdit()
+    }
+
+    func cancelEdit() {
+        editingIndex = nil
+        editingText = ""
+        editMode = false
     }
 
     func startEditing(index: Int, isIngredient: Bool) {
@@ -345,7 +435,7 @@ struct ImagePicker: UIViewControllerRepresentable {
 struct CrearRecetaView_Previews: PreviewProvider {
     static var previews: some View {
         CrearRecetaView(datos: DatosJson(
-            id_usuario: 1,
+            id_usuario: 14,
             correo: "usuario@example.com",
             nombre: "Dani Martinez",
             usuario: "dani123"
