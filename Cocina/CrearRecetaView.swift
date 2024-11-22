@@ -7,8 +7,8 @@ struct CrearRecetaView: View {
     @State private var pasos: [String] = ["Agrega la harina y el agua hasta lograr una masa espesa y profunda.",
                                           "Cocina el pollo y las papas en una olla con agua a fuego lento durante unos 40-50 minutos."]
     @State private var linkVideo: String = ""
-    @State private var porciones: Int? = nil
-    @State private var tiempo: Int? = nil
+    @State private var porciones: Int = 0
+    @State private var tiempo: Int = 0
     @State private var imagenReceta: UIImage? = nil
     @State private var showImagePicker: Bool = false
     @State private var showAddIngrediente = false
@@ -229,22 +229,24 @@ struct CrearRecetaView: View {
                             ImagePicker(image: $imagenReceta)
                         }
 
-                        TextField("Porciones (número entero)", value: $porciones, formatter: NumberFormatter())
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.numberPad)
-                            .padding(.vertical)
+                        HStack {
+                            TextField("Porciones", value: $porciones, formatter: NumberFormatter())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .keyboardType(.numberPad)
+                                .padding(.vertical)
 
-                        TextField("Tiempo en minutos (número entero)", value: $tiempo, formatter: NumberFormatter())
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.numberPad)
-                            .padding(.vertical)
+                            TextField("Tiempo en minutos", value: $tiempo, formatter: NumberFormatter())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .keyboardType(.numberPad)
+                                .padding(.vertical)
+                        }
                     }
                     .padding()
                 }
 
                 // Botón Publicar
                 Button(action: {
-                    // Acción para publicar receta
+                    print("Porciones: \(porciones), Tiempo: \(tiempo)")
                 }) {
                     Text("Publicar")
                         .font(.headline)
