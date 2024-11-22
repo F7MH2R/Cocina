@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A119D38C2CF0364900AE00DF /* RecetaCompleta.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119D38B2CF0364900AE00DF /* RecetaCompleta.swift */; };
 		A11CBA5F2CE8DD5500CF7DB7 /* agregarReceta.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA5E2CE8DD5500CF7DB7 /* agregarReceta.swift */; };
 		A11CBA612CE8DDB500CF7DB7 /* agregarIngredientes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA602CE8DDB500CF7DB7 /* agregarIngredientes.swift */; };
 		A11CBA632CE8E1A200CF7DB7 /* detalleReceta.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11CBA622CE8E1A200CF7DB7 /* detalleReceta.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A119D38B2CF0364900AE00DF /* RecetaCompleta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecetaCompleta.swift; sourceTree = "<group>"; };
 		A11CBA5E2CE8DD5500CF7DB7 /* agregarReceta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = agregarReceta.swift; sourceTree = "<group>"; };
 		A11CBA602CE8DDB500CF7DB7 /* agregarIngredientes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = agregarIngredientes.swift; sourceTree = "<group>"; };
 		A11CBA622CE8E1A200CF7DB7 /* detalleReceta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = detalleReceta.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				A12E898F2CEE88BC008B8984 /* EncabezadoView.swift */,
 				A12E89932CEE902D008B8984 /* Models.swift */,
 				A12E89952CEE9464008B8984 /* RecetaCardView.swift */,
+				A119D38B2CF0364900AE00DF /* RecetaCompleta.swift */,
 			);
 			path = Cocina;
 			sourceTree = "<group>";
@@ -194,6 +197,7 @@
 				A12E89962CEE9464008B8984 /* RecetaCardView.swift in Sources */,
 				A12E89902CEE88BC008B8984 /* EncabezadoView.swift in Sources */,
 				A12E898A2CEE8803008B8984 /* MainView.swift in Sources */,
+				A119D38C2CF0364900AE00DF /* RecetaCompleta.swift in Sources */,
 				A12E89942CEE902D008B8984 /* Models.swift in Sources */,
 				A12E89862CEE666C008B8984 /* lista.swift in Sources */,
 				FB41AF592CDF9E620031C643 /* CocinaApp.swift in Sources */,

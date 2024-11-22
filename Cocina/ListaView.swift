@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ListaView: View {
-    @State private var recetas: [Receta] = [] // Lista de recetas favoritas
+    @State private var recetas: [DetalleReceta] = [] // Lista de recetas favoritas utilizando el modelo DetalleReceta
     @State private var searchText: String = "" // Campo para buscar por nombre o creador
     @State private var tags: String = "" // Campo para buscar por tags
     @State private var errorMessage: String? // Mensaje de error en caso de problemas con la API
@@ -22,12 +22,9 @@ struct ListaView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
                 
-                TextField("Buscar por tags (separados por comas)", text: $tags)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
                 
                 Button(action: {
-                    obtenerRecetasFavoritas(userId: 3, nombre: searchText, tags: tags) // Cambia `3` al ID del usuario autenticado
+                    obtenerRecetasFavoritas(userId: 4, nombre: searchText, tags: tags) // Cambia `3` al ID del usuario autenticado
                 }) {
                     Text("Buscar")
                         .frame(maxWidth: .infinity)
@@ -51,7 +48,7 @@ struct ListaView: View {
                         ForEach(recetas) { receta in
                             VStack(alignment: .leading, spacing: 8) {
                                 // Imagen de la receta
-                                if let imagenUrl = receta.Imagenes.first?.url_imagen {
+                                if let imagenUrl = receta.galeriaImagenes.first?.enlaceImagen {
                                     AsyncImage(url: URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/obtenerimg/\(imagenUrl)")) { image in
                                         image
                                             .resizable()
@@ -74,12 +71,12 @@ struct ListaView: View {
 
                                 // Detalles de la receta
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(receta.descripcion)
+                                    Text(receta.recetaDescripcion)
                                         .font(.headline)
-                                    Text("Por \(receta.Usuarios.nombre)")
+                                    Text("Por \(receta.autorReceta.nombreAutor)")
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
-                                    Text("Promedio: \(receta.promedioResenas, specifier: "%.1f") (\(receta.cantidadResenas) reseñas)")
+                                    Text("Promedio: \(receta.calificacionPromedio, specifier: "%.1f") (\(receta.totalResenas) reseñas)")
                                         .font(.caption)
                                         .foregroundColor(.blue)
                                 }
@@ -110,14 +107,14 @@ struct ListaView: View {
         .background(Color(.systemGreen).opacity(0.1))
         .ignoresSafeArea(edges: .top)
         .onAppear {
-            obtenerRecetasFavoritas(userId: 3) // Llamada inicial para cargar las recetas favoritas
+            obtenerRecetasFavoritas(userId: 4) // Llamada inicial para cargar las recetas favoritas
         }
     }
     
     // Función para consumir la API y obtener recetas favoritas
     func obtenerRecetasFavoritas(userId: Int, nombre: String = "", tags: String = "") {
         // Construir la URL con los parámetros
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetafav/\(userId)?nombre=\(nombre)&tags=\(tags)") else {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetafav/\(userId)?nombre=\(nombre)") else {
             self.errorMessage = "URL inválida"
             return
         }
@@ -125,6 +122,8 @@ struct ListaView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
+    
+        self.errorMessage = url.absoluteString
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data, error == nil else {
                 DispatchQueue.main.async {
@@ -136,7 +135,7 @@ struct ListaView: View {
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                 do {
                     // Decodificar la respuesta JSON
-                    let recetasFavoritas = try JSONDecoder().decode([Receta].self, from: data)
+                    let recetasFavoritas = try JSONDecoder().decode([DetalleReceta].self, from: data)
                     
                     DispatchQueue.main.async {
                         self.recetas = recetasFavoritas
@@ -149,7 +148,7 @@ struct ListaView: View {
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.errorMessage = "Error al obtener las recetas favoritas"
+                    //self.errorMessage = "No hay datos"
                 }
             }
         }.resume()
