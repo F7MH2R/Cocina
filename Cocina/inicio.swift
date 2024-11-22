@@ -28,9 +28,7 @@ struct RecetasView: View {
                         }
                         Spacer()
                         Text(todo)
-                        Button(action: {
-                            print("Agregar receta")
-                        }) {
+                        NavigationLink(destination: CrearRecetaView( datos: datosUsuario)) {
                             Image(systemName: "plus")
                                 .font(.headline)
                                 .foregroundColor(.white)
