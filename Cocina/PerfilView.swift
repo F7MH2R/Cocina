@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PerfilView: View {
+    let datos: DatosJson
     @State private var nombreReal = "Kevin Daniel Rodríguez Martínez"
     @State private var nickname = "Dani Marinadez"
     @State private var email = "Marinadaestofa@gmail.com"
@@ -13,11 +14,10 @@ struct PerfilView: View {
     @State private var isEditing = false // Modo de edición activado/desactivado
 
     // ID del usuario (debería ser dinámico)
-    let userId = 14
 
     var body: some View {
         VStack {
-            EncabezadoView(nickname: nickname, nombre: nombreReal)
+            EncabezadoView(nickname: datos.usuario, nombre: datos.nombre)
             
             Text("Perfil")
                 .font(.title)
@@ -124,11 +124,17 @@ struct PerfilView: View {
         }
         .background(Color(.systemGreen).opacity(0.1))
         .ignoresSafeArea(edges: .top)
+        .onAppear{CargarUser()}
+    }
+    func CargarUser() {
+        nickname = datos.usuario
+        nombreReal = datos.nombre
+        email = datos.correo
     }
     
     // Función para editar el usuario
     func editarUsuario() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/edituser/\(userId)") else {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/edituser/\(datos.id_usuario)") else {
             errorMessage = "URL inválida"
             return
         }
@@ -168,7 +174,7 @@ struct PerfilView: View {
     
     // Función para cambiar la contraseña
     func cambiarContrasena() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/changepass/\(userId)") else {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/changepass/\(datos.id_usuario)") else {
             errorMessage = "URL inválida"
             return
         }
@@ -208,6 +214,11 @@ struct PerfilView: View {
 
 struct PerfilView_Previews: PreviewProvider {
     static var previews: some View {
-        PerfilView()
+        PerfilView(datos: DatosJson(
+            id_usuario: 14,
+            correo: "usuario@example.com",
+            nombre: "Dani Martinez",
+            usuario: "dani123"
+        ))
     }
 }

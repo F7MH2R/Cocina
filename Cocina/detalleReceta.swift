@@ -236,7 +236,7 @@ struct RecetaDetalleView: View {
             }.resume()
         }
     func fetchRecetaDetalle() {
-        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/1/\(recetaId)") else {
+        guard let url = URL(string: "https://tbk4n0cz-3000.use2.devtunnels.ms/api/recetadetalle/\(datos.id_usuario)/\(recetaId)") else {
             errorMessage = "URL inválida"
             isLoading = false
             return

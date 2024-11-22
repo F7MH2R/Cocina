@@ -1,43 +1,38 @@
 import SwiftUI
 
 struct TabBar: View {
-    let datos:DatosJson
+    let datos: DatosJson
     var body: some View {
         TabView {
             
-                RecetasView(datosUsuario: datos)
-                    .tabItem {
-                        VStack {
-                            Image(systemName: "house.fill")
-                            Text("Inicio")
-                        }
-                    }.background(Color.pink)
-                    .foregroundColor(.white)
-                
-                ListaIngredientesView(userId: datos.id_usuario)
-                    .tabItem {
-                        VStack {
-                            Image(systemName: "list.bullet")
-                            Text("Lista")
-                        }
+            RecetasView(datosUsuario: datos)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "house.fill")
+                        Text("Inicio")
                     }
-                MainView(datos: datos)
-                    .tabItem {
-                        VStack {
-                            Image(systemName: "person.fill")
-                            Text("Perfil")
-                        }
-                    }.background(Color.pink)
-                    .foregroundColor(.white)
-            }.background(Color.pink)
-                .foregroundColor(.white)
-        
-        
+                }
             
-        
+            ListaIngredientesView(userId: datos.id_usuario)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "list.bullet")
+                        Text("Lista")
+                    }
+                }
+            
+            MainView(datos: datos)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "person.fill")
+                        Text("Perfil")
+                    }
+                }
+        }
+        .background(Color.black) // Fondo 100% negro
+        .accentColor(.red) // Cambia el color de acento de los iconos seleccionados
     }
 }
-
 
 struct TabBar_Previews: PreviewProvider {
     static var previews: some View {

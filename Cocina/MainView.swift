@@ -12,7 +12,7 @@ struct MainView: View {
                     }
                 }
             
-            ListaView()
+            ListaView(datos: datos)
                 .tabItem {
                     VStack {
                         Image(systemName: "bookmark.fill")
@@ -20,7 +20,7 @@ struct MainView: View {
                     }
                 }
             
-            PerfilView()
+            PerfilView(datos: datos)
                 .tabItem {
                     VStack {
                         Image(systemName: "person.fill")

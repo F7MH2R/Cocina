@@ -12,7 +12,7 @@ struct ListaIngredientesView: View {
 
     var body: some View {
         ZStack {
-            Color.green.edgesIgnoringSafeArea(.all)
+            Color.white.edgesIgnoringSafeArea(.leading)
 
             VStack {
                 // Campo de búsqueda

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ListaView: View {
+    let datos: DatosJson
     @State private var recetas: [DetalleReceta] = [] // Lista de recetas favoritas utilizando el modelo DetalleReceta
     @State private var searchText: String = "" // Campo para buscar por nombre o creador
     @State private var tags: String = "" // Campo para buscar por tags
@@ -9,7 +10,7 @@ struct ListaView: View {
     var body: some View {
         VStack {
             // Encabezado
-            EncabezadoView(nickname: "Dani Marinadez", nombre: "Kevin Daniel Rodríguez Martínez")
+            EncabezadoView(nickname: datos.usuario, nombre: datos.nombre)
             
             // Título
             Text("Favoritos")
@@ -24,7 +25,7 @@ struct ListaView: View {
                 
                 
                 Button(action: {
-                    obtenerRecetasFavoritas(userId: 4, nombre: searchText, tags: tags) // Cambia `3` al ID del usuario autenticado
+                    obtenerRecetasFavoritas(userId: datos.id_usuario, nombre: searchText, tags: tags) // Cambia `3` al ID del usuario autenticado
                 }) {
                     Text("Buscar")
                         .frame(maxWidth: .infinity)
@@ -107,7 +108,7 @@ struct ListaView: View {
         .background(Color(.systemGreen).opacity(0.1))
         .ignoresSafeArea(edges: .top)
         .onAppear {
-            obtenerRecetasFavoritas(userId: 4) // Llamada inicial para cargar las recetas favoritas
+            obtenerRecetasFavoritas(userId: datos.id_usuario) // Llamada inicial para cargar las recetas favoritas
         }
     }
     
@@ -158,6 +159,11 @@ struct ListaView: View {
 // Vista previa
 struct ListaView_Previews: PreviewProvider {
     static var previews: some View {
-        ListaView()
+        ListaView(datos: DatosJson(
+            id_usuario: 4,
+            correo: "usuario@example.com",
+            nombre: "Dani Martinez",
+            usuario: "dani123"
+        ))
     }
 }
