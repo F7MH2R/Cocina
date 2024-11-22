@@ -1,19 +1,24 @@
 import SwiftUI
 
 struct CrearRecetaView: View {
-    
     let datos: DatosJson
     @State private var nombreReceta: String = "Mi Nueva Receta"
     @State private var ingredientes: [String] = ["Una taza de Harina de trigo", "Una taza de Maicena", "4 Huevos"]
     @State private var pasos: [String] = ["Agrega la harina y el agua hasta lograr una masa espesa y profunda.",
                                           "Cocina el pollo y las papas en una olla con agua a fuego lento durante unos 40-50 minutos."]
     @State private var linkVideo: String = ""
-    @State private var porciones: String = ""
+    @State private var porciones: Int? = nil
+    @State private var tiempo: Int? = nil
     @State private var imagenReceta: UIImage? = nil
+    @State private var showImagePicker: Bool = false
     @State private var showAddIngrediente = false
     @State private var showAddPaso = false
     @State private var nuevoIngrediente: String = ""
     @State private var nuevoPaso: String = ""
+    @State private var editMode: Bool = false
+    @State private var editingIndex: Int? = nil
+    @State private var editingText: String = ""
+    @State private var isEditingIngredient: Bool = false
 
     var body: some View {
         NavigationView {
@@ -54,19 +59,17 @@ struct CrearRecetaView: View {
                             .foregroundColor(.yellow)
                             .padding(.bottom, 5)
 
-                        ForEach(ingredientes, id: \.self) { ingrediente in
+                        ForEach(ingredientes.indices, id: \.self) { index in
                             HStack {
-                                Text(ingrediente)
+                                Text(ingredientes[index])
                                     .font(.body)
                                 Spacer()
                                 Menu {
                                     Button("Editar", action: {
-                                        // Acción para editar
+                                        startEditing(index: index, isIngredient: true)
                                     })
                                     Button("Eliminar", action: {
-                                        if let index = ingredientes.firstIndex(of: ingrediente) {
-                                            ingredientes.remove(at: index)
-                                        }
+                                        ingredientes.remove(at: index)
                                     })
                                 } label: {
                                     Image(systemName: "ellipsis.circle")
@@ -124,14 +127,14 @@ struct CrearRecetaView: View {
                             .foregroundColor(.yellow)
                             .padding(.bottom, 5)
 
-                        ForEach(Array(pasos.enumerated()), id: \.offset) { index, paso in
+                        ForEach(pasos.indices, id: \.self) { index in
                             HStack {
-                                Text("\(index + 1). \(paso)")
+                                Text("\(index + 1). \(pasos[index])")
                                     .font(.body)
                                 Spacer()
                                 Menu {
                                     Button("Editar", action: {
-                                        // Acción para editar
+                                        startEditing(index: index, isIngredient: false)
                                     })
                                     Button("Eliminar", action: {
                                         pasos.remove(at: index)
@@ -216,18 +219,22 @@ struct CrearRecetaView: View {
                         }
 
                         Button(action: {
-                            // Acción para subir imagen
+                            showImagePicker.toggle()
                         }) {
                             Image(systemName: "arrow.up.circle.fill")
                                 .font(.title)
                                 .foregroundColor(.pink)
                         }
+                        .sheet(isPresented: $showImagePicker) {
+                            ImagePicker(image: $imagenReceta)
+                        }
 
-                        TextField("Link del video (opcional)", text: $linkVideo)
+                        TextField("Porciones (número entero)", value: $porciones, formatter: NumberFormatter())
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
                             .padding(.vertical)
 
-                        TextField("Porciones", text: $porciones)
+                        TextField("Tiempo en minutos (número entero)", value: $tiempo, formatter: NumberFormatter())
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.numberPad)
                             .padding(.vertical)
@@ -249,6 +256,86 @@ struct CrearRecetaView: View {
                 }
                 .padding()
             }
+        }
+        .sheet(isPresented: $editMode) {
+            VStack {
+                Text("Editar")
+                    .font(.headline)
+                TextField("Texto", text: $editingText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                HStack {
+                    Button("Guardar", action: {
+                        if let index = editingIndex {
+                            if isEditingIngredient {
+                                ingredientes[index] = editingText
+                            } else {
+                                pasos[index] = editingText
+                            }
+                            editingIndex = nil
+                            editMode = false
+                        }
+                    })
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.green)
+                    .cornerRadius(10)
+
+                    Button("Cancelar", action: {
+                        editingIndex = nil
+                        editMode = false
+                    })
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.red)
+                    .cornerRadius(10)
+                }
+            }
+            .padding()
+        }
+    }
+
+    func startEditing(index: Int, isIngredient: Bool) {
+        editingIndex = index
+        editingText = isIngredient ? ingredientes[index] : pasos[index]
+        isEditingIngredient = isIngredient
+        editMode = true
+    }
+}
+
+// Representable para ImagePicker
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.allowsEditing = false
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = uiImage
+            }
+            picker.dismiss(animated: true)
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
         }
     }
 }
