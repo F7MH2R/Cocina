@@ -176,6 +176,6 @@ struct IngredienteModel: Identifiable, Decodable {
 
 struct ListaIngredientesView_Previews: PreviewProvider {
     static var previews: some View {
-        ListaIngredientesView(userId: 1)
+        ListaIngredientesView(userId: 4)
     }
 }

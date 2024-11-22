@@ -7,16 +7,16 @@ struct MainView: View {
             MisRecetasView(datos: datos)
                 .tabItem {
                     VStack {
-                        Image(systemName: "house.fill")
-                        Text("Inicio")
+                        Image(systemName: "star.circle.fill")
+                        Text("Mis Recetas")
                     }
                 }
             
             ListaView()
                 .tabItem {
                     VStack {
-                        Image(systemName: "list.bullet")
-                        Text("Lista")
+                        Image(systemName: "bookmark.fill")
+                        Text("Favoritos")
                     }
                 }
             
@@ -24,7 +24,7 @@ struct MainView: View {
                 .tabItem {
                     VStack {
                         Image(systemName: "person.fill")
-                        Text("Perfil")
+                        Text("Mi Perfil")
                     }
                 }
         }

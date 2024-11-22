@@ -57,17 +57,7 @@ struct RecetasView: View {
                         }
                     }
                     
-                    // Barra de navegación inferior
-                    HStack {
-                        TabButton(icon: "house.fill", label: "Inicio")
-                        Spacer()
-                        TabButton(icon: "list.bullet", label: "Lista")
-                        Spacer()
-                        TabButton(icon: "person.fill", label: "Perfil")
-                    }
-                    .padding()
-                    .background(Color.pink)
-                    .foregroundColor(.white)
+                    
                 }
             }
             .onAppear {

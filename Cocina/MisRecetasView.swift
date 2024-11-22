@@ -10,45 +10,45 @@ struct MisRecetasView: View {
     let datos: DatosJson
 
     var body: some View {
-        VStack {
-            // Encabezado
-            EncabezadoView(nickname: "Dani Marinadez", nombre: "Kevin Daniel Rodríguez Martínez")
-            
-            Text("Mis Recetas")
-                .font(.title)
-                .padding(.top)
-            
-            // Campos de búsqueda
-            VStack(spacing: 10) {
-                TextField("Buscar por nombre o creador", text: $searchText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
+        NavigationView {
+            VStack {
+                // Encabezado
+                EncabezadoView(nickname: "Dani Marinadez", nombre: "Kevin Daniel Rodríguez Martínez")
                 
-                Button(action: {
-                    fetchRecetasUsuario(userId: datos.id_usuario, nombre: searchText, tags: tags)
-                }) {
-                    Text("Buscar")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.pink)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                Text("Mis Recetas")
+                    .font(.title)
+                    .padding(.top)
+                
+                // Campos de búsqueda
+                VStack(spacing: 10) {
+                    TextField("Buscar por nombre o creador", text: $searchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    
+                    Button(action: {
+                        fetchRecetasUsuario(userId: datos.id_usuario, nombre: searchText, tags: tags)
+                    }) {
+                        Text("Buscar")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.pink)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
-            }
-            .padding(.bottom)
-            
-            // Lista de recetas creadas por el usuario
-            ScrollView {
-                if recetas.isEmpty {
-                    Text("No se encontraron recetas.")
-                        .foregroundColor(.gray)
-                        .padding()
-                } else {
-                    VStack(spacing: 16) {
-                        ForEach(recetas) { receta in
-                            VStack {
-                                NavigationLink(destination: RecetaDetalleView(recetaId: receta.id, datos: datos)) {
+                .padding(.bottom)
+                
+                // Lista de recetas creadas por el usuario
+                ScrollView {
+                    if recetas.isEmpty {
+                        Text("No se encontraron recetas.")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else {
+                        VStack(spacing: 16) {
+                            ForEach(recetas) { receta in
+                                VStack {
                                     VStack(alignment: .leading, spacing: 8) {
                                         // Imagen de la receta
                                         if let imagenUrl = receta.imagenesDeLaReceta.first?.enlaceDeLaImagen {
@@ -76,7 +76,7 @@ struct MisRecetasView: View {
                                                         .font(.caption)
                                                 )
                                         }
-
+                                        
                                         // Detalles de la receta
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(receta.descripcionDeLaReceta)
@@ -94,63 +94,91 @@ struct MisRecetasView: View {
                                     .background(Color.white)
                                     .cornerRadius(10)
                                     .shadow(radius: 2)
-                                }
-                                
-                                // Botón para eliminar receta
-                                Button(action: {
-                                    eliminarReceta(recetaId: receta.id)
-                                }) {
-                                    HStack {
-                                        Image(systemName: "trash")
-                                        Text("Eliminar")
+                                    
+                                    // Botones de acción
+                                    HStack(spacing: 10) {
+                                        // Botón de Detalle
+                                        NavigationLink(destination: RecetaDetalleView(recetaId: receta.id, datos: datos)) {
+                                            HStack {
+                                                Image(systemName: "eye")
+                                                Text("Detalle")
+                                            }
+                                            .padding()
+                                            .frame(maxWidth: .infinity)
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(10)
+                                        }
+                                        
+                                        // Botón de Editar
+                                        NavigationLink(destination: EditarRecetaView(recetaId: receta.id, datos: datos)) {
+                                            HStack {
+                                                Image(systemName: "pencil")
+                                                Text("Editar")
+                                            }
+                                            .padding()
+                                            .frame(maxWidth: .infinity)
+                                            .background(Color.green)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(10)
+                                        }
                                     }
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.red)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
+                                    
+                                    // Botón para eliminar receta
+                                    Button(action: {
+                                        eliminarReceta(recetaId: receta.id)
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "trash")
+                                            Text("Eliminar")
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.red)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
-            }
-            
-            Spacer()
-            
-            // Mensaje de error si ocurre algo
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .font(.caption)
-                    .padding()
-            }
-            
-            // Toast para confirmar acciones
-            if showToast {
-                VStack {
-                    Spacer()
-                    Text(toastMessage)
+                
+                Spacer()
+                
+                // Mensaje de error si ocurre algo
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
                         .padding()
-                        .background(Color.black.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.bottom, 20)
-                        .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                self.showToast = false
+                }
+                
+                // Toast para confirmar acciones
+                if showToast {
+                    VStack {
+                        Spacer()
+                        Text(toastMessage)
+                            .padding()
+                            .background(Color.black.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.bottom, 20)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    self.showToast = false
+                                }
                             }
-                        }
+                    }
                 }
             }
-        }
-        .background(Color(.systemGreen).opacity(0.1))
-        .ignoresSafeArea(edges: .top)
-        .onAppear {
-            fetchRecetasUsuario(userId: datos.id_usuario) // Cargar recetas creadas por el usuario
-        }
-    }
+            .background(Color(.systemGreen).opacity(0.1))
+            .ignoresSafeArea(edges: .top)
+            .onAppear {
+                fetchRecetasUsuario(userId: datos.id_usuario) // Cargar recetas creadas por el usuario
+            }
+        }}
     
     // Función para consumir la API y obtener las recetas creadas por el usuario
     func fetchRecetasUsuario(userId: Int, nombre: String = "", tags: String = "") {

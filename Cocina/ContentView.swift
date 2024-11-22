@@ -111,7 +111,7 @@ struct ContentView: View {
                 // Navegación al Inicio
                 if let datosUsuario = datosUsuario {
                     NavigationLink(
-                        destination: RecetasView(datosUsuario : datosUsuario
+                        destination: TabBar(datos : datosUsuario
                         ),
                         isActive: $shouldNavigateToInicio
                     ) {
