@@ -136,7 +136,7 @@ struct RecetaDetalleView: View {
 
                             IngredientesView(ingredientes: detalle.Ingredientes)
                             PasosView(pasos: detalle.Pasos)
-                            CategoriasView(categorias: detalle.TiposRecetas)
+                           
                         }
                         .padding()
                     }
